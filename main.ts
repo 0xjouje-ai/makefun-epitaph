@@ -12,13 +12,19 @@ const LINE = "My final words were going to be profound. These will have to do.";
 
 // The gate only accepts UTF-8 text of 1 to 150 characters, not only
 // whitespace, on a single line: refuse to write anything that would fail it.
+// Single-line means no line break of either kind: a stray "\r" would split
+// the epitaph across lines on some readers, so reject it too.
 if (
   LINE.length < 1 ||
   LINE.length > 150 ||
   LINE.trim() === "" ||
-  LINE.includes("\n")
+  LINE.includes("\n") ||
+  LINE.includes("\r")
 ) {
-  throw new Error(`entry line fails the gate: ${LINE.length} characters`);
+  throw new Error(
+    `entry line fails the gate: ${LINE.length} characters, ` +
+      `single-line=${!LINE.includes("\n") && !LINE.includes("\r")}`,
+  );
 }
 
 const outDir = process.env.MAKEFUN_OUTPUT_DIR ?? "/output";
